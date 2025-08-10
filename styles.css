@@ -319,7 +319,7 @@ header p {
     background: transparent;
     border-radius: 20px;
     padding: 1rem;
-    min-height: 300px;
+    min-height: 400px;
     position: relative;
 }
 
@@ -332,29 +332,51 @@ header p {
 
 .progress-bar {
     position: relative;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.25) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .mushroom-bar {
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 2px;
+    flex-shrink: 0;
 }
 
 .mushroom-bar:hover {
-    filter: brightness(1.2);
+    filter: brightness(1.3);
+    transform: scale(1.1) !important;
+    z-index: 10;
+    transition: transform 0.2s ease;
+}
+
+.mushroom-cap:hover {
+    transform: translateX(-50%) scale(1.15);
+    transition: transform 0.2s ease;
+}
+
+.mushroom-gills {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.mushroom-bar:hover .mushroom-gills {
+    opacity: 1;
 }
 
 .score-display {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    padding: 15px 30px;
-    border-radius: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+    padding: 20px 40px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .progress-percentage {
     font-style: italic;
     opacity: 0.9;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes fadeInUp {
@@ -365,6 +387,17 @@ header p {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes mushroomGrow {
+    from {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 

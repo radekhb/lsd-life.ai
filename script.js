@@ -549,11 +549,11 @@ class HallucinationDetector {
             progressContainer.className = 'mushroom-progress-bar';
             progressContainer.style.cssText = `
                 width: 100%;
-                max-width: 800px;
+                max-width: 1000px;
                 margin: 0 auto;
-                padding: 20px;
+                padding: 30px;
                 background: rgba(255, 255, 255, 0.1);
-                border-radius: 20px;
+                border-radius: 25px;
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
             `;
@@ -563,143 +563,213 @@ class HallucinationDetector {
             progressBar.className = 'progress-bar';
             progressBar.style.cssText = `
                 width: 100%;
-                height: 60px;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 30px;
+                height: 120px;
+                background: linear-gradient(135deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.25) 100%);
+                border-radius: 15px;
+                border: 2px solid rgba(255, 255, 255, 0.1);
                 position: relative;
                 overflow: hidden;
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
+                align-items: flex-end;
                 padding: 0 10px;
-                box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
             `;
             
-            // Create 100 mushroom bars (1% each)
-            for (let i = 0; i < 100; i++) {
-                const mushroomBar = document.createElement('div');
-                mushroomBar.className = 'mushroom-bar';
-                
-                // Determine if this bar should be active based on score
+            // Create canvas for mushrooms
+            const canvas = document.createElement('canvas');
+            canvas.width = 1000;
+            canvas.height = 120;
+            canvas.style.cssText = `
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            `;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Mushroom colors (realistic earth tones)
+            const mushroomColors = [
+                '#8B4513', '#A0522D', '#CD853F', '#D2691E', '#B8860B',
+                '#DAA520', '#BDB76B', '#F4A460', '#DEB887', '#F5DEB3',
+                '#D2B48C', '#BC8F8F', '#A08080', '#8F7A6B', '#6B4423'
+            ];
+            
+            // Calculate bar width and spacing
+            const totalBars = 100;
+            const barWidth = (canvas.width - 20) / totalBars; // 20px for padding
+            const spacing = 2;
+            const actualBarWidth = barWidth - spacing;
+            
+            // Draw mushrooms for each percentage
+            for (let i = 0; i < totalBars; i++) {
+                const x = 10 + (i * barWidth) + (barWidth / 2);
                 const isActive = i < score;
                 
-                // Generate random mushroom properties
-                const mushroomProps = this.generateMushroomProperties(i, isActive);
-                
-                mushroomBar.style.cssText = `
-                    width: 8px;
-                    height: ${mushroomProps.height}px;
-                    background: ${mushroomProps.color};
-                    border-radius: ${mushroomProps.borderRadius};
+                if (isActive) {
+                    // Draw mushroom stem
+                    const stemHeight = 60 + Math.random() * 40; // 60-100px
+                    const stemWidth = 6 + Math.random() * 4; // 6-10px
+                    const stemColor = mushroomColors[Math.floor(Math.random() * mushroomColors.length)];
+                    
+                    // Stem
+                    ctx.fillStyle = stemColor;
+                    ctx.fillRect(x - stemWidth/2, canvas.height - stemHeight, stemWidth, stemHeight);
+                    
+                    // Add stem texture
+                    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                    for (let j = 0; j < 3; j++) {
+                        const lineY = canvas.height - stemHeight + (j * stemHeight / 3);
+                        ctx.fillRect(x - stemWidth/2, lineY, stemWidth, 1);
+                    }
+                    
+                    // Draw mushroom cap
+                    const capWidth = 12 + Math.random() * 8; // 12-20px
+                    const capHeight = 8 + Math.random() * 6; // 8-14px
+                    const capColor = '#8B4513';
+                    
+                    // Cap
+                    ctx.fillStyle = capColor;
+                    ctx.beginPath();
+                    ctx.ellipse(x, canvas.height - stemHeight - capHeight/2, capWidth/2, capHeight/2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Add cap texture and spots
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    const spotCount = 2 + Math.floor(Math.random() * 4);
+                    for (let k = 0; k < spotCount; k++) {
+                        const spotX = x - capWidth/3 + Math.random() * capWidth/1.5;
+                        const spotY = canvas.height - stemHeight - capHeight/2 - capHeight/4 + Math.random() * capHeight/2;
+                        const spotSize = 1 + Math.random() * 2;
+                        ctx.beginPath();
+                        ctx.arc(spotX, spotY, spotSize, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    
+                    // Add gills under cap
+                    ctx.strokeStyle = 'rgba(139,69,19,0.4)';
+                    ctx.lineWidth = 0.5;
+                    for (let g = 0; g < 5; g++) {
+                        const gillX = x - capWidth/3 + (g * capWidth/6);
+                        ctx.beginPath();
+                        ctx.moveTo(gillX, canvas.height - stemHeight - capHeight/2);
+                        ctx.lineTo(gillX, canvas.height - stemHeight);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Create individual mushroom bars for interaction
+            const barsContainer = document.createElement('div');
+            barsContainer.style.cssText = `
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: flex-end;
+                padding: 0 10px;
+                pointer-events: auto;
+            `;
+            
+            for (let i = 0; i < totalBars; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'mushroom-bar';
+                bar.style.cssText = `
+                    width: ${actualBarWidth}px;
+                    height: 100%;
+                    margin: 0 ${spacing/2}px;
+                    cursor: pointer;
                     position: relative;
                     transition: all 0.3s ease;
-                    transform: ${isActive ? 'scale(1)' : 'scale(0.8)'};
-                    opacity: ${isActive ? '1' : '0.3'};
-                    box-shadow: ${mushroomProps.shadow};
-                    animation: ${isActive ? 'mushroomGrow 0.5s ease forwards' : 'none'};
-                    animation-delay: ${i * 0.01}s;
                 `;
                 
-                // Add mushroom cap details
-                if (isActive) {
-                    mushroomBar.innerHTML = `
-                        <div class="mushroom-cap" style="
-                            position: absolute;
-                            top: -8px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            width: ${mushroomProps.capWidth}px;
-                            height: ${mushroomProps.capHeight}px;
-                            background: ${mushroomProps.capColor};
-                            border-radius: ${mushroomProps.capBorderRadius};
-                            box-shadow: ${mushroomProps.capShadow};
-                        "></div>
-                        <div class="mushroom-spots" style="
-                            position: absolute;
-                            top: -6px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            width: 4px;
-                            height: 4px;
-                            background: ${mushroomProps.spotsColor};
-                            border-radius: 50%;
-                            box-shadow: 0 0 4px ${mushroomProps.spotsColor};
-                        "></div>
-                    `;
-                }
+                // Add tooltip
+                bar.title = `Percentage: ${i + 1}%`;
                 
-                progressBar.appendChild(mushroomBar);
+                // Add click event for debugging
+                bar.addEventListener('click', () => {
+                    console.log(`Clicked mushroom ${i + 1} (${i < score ? 'Active' : 'Inactive'})`);
+                });
+                
+                barsContainer.appendChild(bar);
             }
             
             // Add score display
-            const scoreDisplay = document.createElement('div');
-            scoreDisplay.className = 'score-display';
-            scoreDisplay.style.cssText = `
-                text-align: center;
-                margin-top: 20px;
-                font-size: 24px;
-                font-weight: bold;
-                color: white;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            `;
-            scoreDisplay.textContent = `Hallucination Score: ${Math.floor(score)}%`;
             
-            // Add progress percentage
-            const progressPercentage = document.createElement('div');
-            progressPercentage.className = 'progress-percentage';
-            progressPercentage.style.cssText = `
-                text-align: center;
-                margin-top: 10px;
-                font-size: 16px;
-                color: rgba(255, 255, 255, 0.8);
-            `;
-            progressPercentage.textContent = `${Math.floor(score)} of 100 mushrooms detected`;
             
-            // Assemble the visualization
-            progressContainer.appendChild(progressBar);
-            progressContainer.appendChild(scoreDisplay);
-            progressContainer.appendChild(progressPercentage);
+                                // Assemble everything
+                    progressBar.appendChild(canvas);
+                    progressBar.appendChild(barsContainer);
+                    progressContainer.appendChild(progressBar);
+                    this.faceContainer.appendChild(progressContainer);
             
-            this.faceContainer.appendChild(progressContainer);
-            
-            // Add CSS animations
-            this.addMushroomAnimations();
+            // Animate mushrooms appearing
+            const bars = barsContainer.querySelectorAll('.mushroom-bar');
+            bars.forEach((bar, index) => {
+                if (index < score) {
+                    bar.style.animationDelay = `${index * 20}ms`;
+                    bar.style.animation = 'mushroomGrow 0.6s ease-out forwards';
+                }
+            });
             
         } catch (error) {
             console.error('Error updating visualization:', error);
-            this.showVisualizationError('Failed to update visualization');
+            this.faceContainer.innerHTML = '<div style="color: white; text-align: center; padding: 2rem;">Error creating visualization</div>';
         }
     }
 
     generateMushroomProperties(index, isActive) {
         // Generate varied mushroom properties for visual interest
         const colors = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
-            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2'
+            '#8B4513', '#A0522D', '#CD853F', '#D2691E', '#B8860B',
+            '#DAA520', '#BDB76B', '#F0E68C', '#EEE8AA', '#F5DEB3',
+            '#DEB887', '#D2B48C', '#BC8F8F', '#F4A460', '#DA70D6'
         ];
         
         const capColors = [
             '#8B4513', '#A0522D', '#CD853F', '#D2691E', '#B8860B',
-            '#DAA520', '#BDB76B', '#F0E68C', '#EEE8AA', '#F5DEB3'
+            '#DAA520', '#BDB76B', '#F0E68C', '#EEE8AA', '#F5DEB3',
+            '#DEB887', '#D2B48C', '#BC8F8F', '#F4A460', '#DA70D6'
         ];
         
         const spotsColors = [
             '#FFFFFF', '#F0F8FF', '#F5F5DC', '#FFE4E1', '#E6E6FA',
-            '#FFFACD', '#F0FFF0', '#FDF5E6', '#FFEFD5', '#F5F5F5'
+            '#FFFACD', '#F0FFF0', '#FDF5E6', '#FFEFD5', '#F5F5F5',
+            '#F8F8FF', '#F5F5F5', '#F0F0F0', '#E6E6FA', '#F0F8FF'
+        ];
+        
+        const gillsColors = [
+            '#F5DEB3', '#DEB887', '#D2B48C', '#BC8F8F', '#F4A460',
+            '#DA70D6', '#FF69B4', '#FF1493', '#DC143C', '#B22222'
+        ];
+        
+        const capBorderColors = [
+            '#654321', '#8B4513', '#A0522D', '#CD853F', '#D2691E',
+            '#B8860B', '#DAA520', '#BDB76B', '#F0E68C', '#EEE8AA'
         ];
         
         return {
-            height: isActive ? Math.random() * 30 + 20 : 15,
+            height: isActive ? Math.random() * 50 + 40 : 25,
             color: colors[index % colors.length],
-            borderRadius: isActive ? '4px 4px 8px 8px' : '4px',
-            shadow: isActive ? '0 4px 8px rgba(0, 0, 0, 0.3)' : 'none',
-            capWidth: isActive ? Math.random() * 8 + 8 : 6,
-            capHeight: isActive ? Math.random() * 6 + 4 : 3,
+            borderRadius: isActive ? '6px 6px 12px 12px' : '6px',
+            shadow: isActive ? '0 6px 12px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.1)' : 'none',
+            capWidth: isActive ? Math.random() * 12 + 16 : 12,
+            capHeight: isActive ? Math.random() * 8 + 8 : 6,
             capColor: capColors[index % capColors.length],
             capBorderRadius: '50% 50% 0 0',
-            capShadow: isActive ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none',
-            spotsColor: spotsColors[index % spotsColors.length]
+            capShadow: isActive ? '0 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2)' : 'none',
+            capBorderColor: capBorderColors[index % capBorderColors.length],
+            capOffset: isActive ? Math.random() * 4 + 12 : 10,
+            spotsColor: spotsColors[index % spotsColors.length],
+            spotsSize: isActive ? Math.random() * 3 + 3 : 2,
+            spotsOffset: isActive ? Math.random() * 3 + 10 : 8,
+            gillsColor: gillsColors[index % gillsColors.length],
+            gillsWidth: isActive ? Math.random() * 6 + 8 : 6,
+            gillsHeight: isActive ? Math.random() * 4 + 6 : 4,
+            gillsOffset: isActive ? Math.random() * 2 + 8 : 6
         };
     }
 
