@@ -551,7 +551,7 @@ class HallucinationDetector {
                 width: 100%;
                 max-width: 1000px;
                 margin: 0 auto;
-                padding: 30px;
+                padding: 15px;
                 background: rgba(255, 255, 255, 0.1);
                 border-radius: 25px;
                 backdrop-filter: blur(10px);
