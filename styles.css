@@ -195,7 +195,7 @@ header p {
     border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 #text-input {
@@ -261,7 +261,7 @@ header p {
 .results-section {
     background: white;
     border-radius: 20px;
-    padding: 2rem;
+    padding: 1.5rem;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     animation: slideUp 0.5s ease;
 }
@@ -310,7 +310,7 @@ header p {
 
 .face-visualization {
     text-align: center;
-    margin: 2rem 0;
+    margin: 1rem 0;
 }
 
 .face-container {
@@ -319,7 +319,6 @@ header p {
     background: transparent;
     border-radius: 20px;
     padding: 0.5rem;
-    min-height: 300px;
     position: relative;
 }
 
