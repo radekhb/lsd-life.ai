@@ -544,42 +544,126 @@ class HallucinationDetector {
             // Clear the container
             this.faceContainer.innerHTML = '';
             
-            // Determine color based on score
-            let backgroundColor;
-            let textColor = '#ffffff';
+            // Create progress bar container
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'mushroom-progress-bar';
+            progressContainer.style.cssText = `
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            `;
             
-            if (score > 75) {
-                backgroundColor = '#ff4757'; // Red for high hallucination (crazy)
-            } else if (score > 50) {
-                backgroundColor = '#ffa502'; // Orange for medium-high (fun)
-            } else if (score > 25) {
-                backgroundColor = '#ffdd59'; // Yellow for medium (playful)
-            } else {
-                backgroundColor = '#2ed573'; // Green for low (calm)
+            // Create progress bar
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressBar.style.cssText = `
+                width: 100%;
+                height: 60px;
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 30px;
+                position: relative;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 10px;
+                box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+            `;
+            
+            // Create 100 mushroom bars (1% each)
+            for (let i = 0; i < 100; i++) {
+                const mushroomBar = document.createElement('div');
+                mushroomBar.className = 'mushroom-bar';
+                
+                // Determine if this bar should be active based on score
+                const isActive = i < score;
+                
+                // Generate random mushroom properties
+                const mushroomProps = this.generateMushroomProperties(i, isActive);
+                
+                mushroomBar.style.cssText = `
+                    width: 8px;
+                    height: ${mushroomProps.height}px;
+                    background: ${mushroomProps.color};
+                    border-radius: ${mushroomProps.borderRadius};
+                    position: relative;
+                    transition: all 0.3s ease;
+                    transform: ${isActive ? 'scale(1)' : 'scale(0.8)'};
+                    opacity: ${isActive ? '1' : '0.3'};
+                    box-shadow: ${mushroomProps.shadow};
+                    animation: ${isActive ? 'mushroomGrow 0.5s ease forwards' : 'none'};
+                    animation-delay: ${i * 0.01}s;
+                `;
+                
+                // Add mushroom cap details
+                if (isActive) {
+                    mushroomBar.innerHTML = `
+                        <div class="mushroom-cap" style="
+                            position: absolute;
+                            top: -8px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: ${mushroomProps.capWidth}px;
+                            height: ${mushroomProps.capHeight}px;
+                            background: ${mushroomProps.capColor};
+                            border-radius: ${mushroomProps.capBorderRadius};
+                            box-shadow: ${mushroomProps.capShadow};
+                        "></div>
+                        <div class="mushroom-spots" style="
+                            position: absolute;
+                            top: -6px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: 4px;
+                            height: 4px;
+                            background: ${mushroomProps.spotsColor};
+                            border-radius: 50%;
+                            box-shadow: 0 0 4px ${mushroomProps.spotsColor};
+                        "></div>
+                    `;
+                }
+                
+                progressBar.appendChild(mushroomBar);
             }
             
-            // Apply the color to the face-container
-            this.faceContainer.style.backgroundColor = backgroundColor;
-            this.faceContainer.style.color = textColor;
-            this.faceContainer.style.borderRadius = '12px';
-            this.faceContainer.style.padding = '20px';
-            this.faceContainer.style.textAlign = 'center';
-            this.faceContainer.style.fontSize = '18px';
-            this.faceContainer.style.fontWeight = 'bold';
-            this.faceContainer.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
-            this.faceContainer.style.minHeight = '200px';
-            this.faceContainer.style.display = 'flex';
-            this.faceContainer.style.alignItems = 'center';
-            this.faceContainer.style.justifyContent = 'center';
+            // Add score display
+            const scoreDisplay = document.createElement('div');
+            scoreDisplay.className = 'score-display';
+            scoreDisplay.style.cssText = `
+                text-align: center;
+                margin-top: 20px;
+                font-size: 24px;
+                font-weight: bold;
+                color: white;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            `;
+            scoreDisplay.textContent = `Hallucination Score: ${Math.floor(score)}%`;
             
-            // Add text to show the score
-            const scoreText = document.createElement('div');
-            scoreText.textContent = `Hallucination Score: ${Math.floor(score)}%`;
-            scoreText.style.fontSize = '24px';
-            scoreText.style.fontWeight = 'bold';
-            scoreText.style.textShadow = '2px 2px 4px rgba(0,0,0,0.3)';
+            // Add progress percentage
+            const progressPercentage = document.createElement('div');
+            progressPercentage.className = 'progress-percentage';
+            progressPercentage.style.cssText = `
+                text-align: center;
+                margin-top: 10px;
+                font-size: 16px;
+                color: rgba(255, 255, 255, 0.8);
+            `;
+            progressPercentage.textContent = `${Math.floor(score)} of 100 mushrooms detected`;
             
-            this.faceContainer.appendChild(scoreText);
+            // Assemble the visualization
+            progressContainer.appendChild(progressBar);
+            progressContainer.appendChild(scoreDisplay);
+            progressContainer.appendChild(progressPercentage);
+            
+            this.faceContainer.appendChild(progressContainer);
+            
+            // Add CSS animations
+            this.addMushroomAnimations();
             
         } catch (error) {
             console.error('Error updating visualization:', error);
@@ -587,7 +671,73 @@ class HallucinationDetector {
         }
     }
 
-    // All drawing methods removed - no longer needed
+    generateMushroomProperties(index, isActive) {
+        // Generate varied mushroom properties for visual interest
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2'
+        ];
+        
+        const capColors = [
+            '#8B4513', '#A0522D', '#CD853F', '#D2691E', '#B8860B',
+            '#DAA520', '#BDB76B', '#F0E68C', '#EEE8AA', '#F5DEB3'
+        ];
+        
+        const spotsColors = [
+            '#FFFFFF', '#F0F8FF', '#F5F5DC', '#FFE4E1', '#E6E6FA',
+            '#FFFACD', '#F0FFF0', '#FDF5E6', '#FFEFD5', '#F5F5F5'
+        ];
+        
+        return {
+            height: isActive ? Math.random() * 30 + 20 : 15,
+            color: colors[index % colors.length],
+            borderRadius: isActive ? '4px 4px 8px 8px' : '4px',
+            shadow: isActive ? '0 4px 8px rgba(0, 0, 0, 0.3)' : 'none',
+            capWidth: isActive ? Math.random() * 8 + 8 : 6,
+            capHeight: isActive ? Math.random() * 6 + 4 : 3,
+            capColor: capColors[index % capColors.length],
+            capBorderRadius: '50% 50% 0 0',
+            capShadow: isActive ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none',
+            spotsColor: spotsColors[index % spotsColors.length]
+        };
+    }
+
+    addMushroomAnimations() {
+        // Add CSS animations if they don't exist
+        if (!document.getElementById('mushroom-animations')) {
+            const style = document.createElement('style');
+            style.id = 'mushroom-animations';
+            style.textContent = `
+                @keyframes mushroomGrow {
+                    0% {
+                        transform: scale(0.3);
+                        opacity: 0;
+                    }
+                    50% {
+                        transform: scale(1.1);
+                        opacity: 0.8;
+                    }
+                    100% {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+                
+                .mushroom-bar:hover {
+                    transform: scale(1.2) !important;
+                    z-index: 10;
+                    transition: transform 0.2s ease;
+                }
+                
+                .mushroom-cap:hover {
+                    transform: translateX(-50%) scale(1.1);
+                    transition: transform 0.2s ease;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
     
     updateAnalysisDetails(analysis) {
         try {

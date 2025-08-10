@@ -314,15 +314,59 @@ header p {
 }
 
 .face-container {
-    display: inline-block;
+    display: block;
     margin-bottom: 1rem;
-    background: linear-gradient(135deg, #87CEEB 0%, #90EE90 50%, #228B22 100%);
+    background: transparent;
     border-radius: 20px;
     padding: 1rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    min-height: 300px;
+    position: relative;
 }
 
 /* Canvas styling is handled in JavaScript */
+
+/* Mushroom Progress Bar Styles */
+.mushroom-progress-bar {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.progress-bar {
+    position: relative;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+}
+
+.mushroom-bar {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mushroom-bar:hover {
+    filter: brightness(1.2);
+}
+
+.score-display {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    padding: 15px 30px;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.progress-percentage {
+    font-style: italic;
+    opacity: 0.9;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 .face-labels {
     display: flex;
